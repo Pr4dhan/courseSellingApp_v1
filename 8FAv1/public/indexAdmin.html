@@ -65,9 +65,8 @@
       
       const createBtn = document.getElementById('createBtn')
       const createForm = document.getElementById('createForm')
-      const updateForm = document.getElementById('createForm')
-     
-
+      const updateForm = document.getElementById('updateForm')
+      
       const titleUpdate = document.getElementById('updateTitle')
       const descriptionUpdate = document.getElementById('updateDescription')
       const imageUrlUpdate = document.getElementById('updateImageUrl')
@@ -143,6 +142,7 @@
               selectedCourseId = course._id;
               updateForm.style.display = 'block'
               createForm.style.display = 'none'
+              
               titleUpdate.value = course.title;
               descriptionUpdate.value = course.description;
               imageUrlUpdate.value = course.imageUrl;
