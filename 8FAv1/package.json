@@ -1,0 +1,22 @@
+{
+  "name": "8fav1",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "frontend": "node server.js",
+    "backend": "node /Users/piyushpradhan/Developer/Phase2/project/8v2/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  },
+  "dependencies": {
+    "http-proxy-middleware": "^3.0.7"
+  }
+}

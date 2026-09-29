@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Dashboard</title>
+	<style>
+	    .course-form {
+			display: none;
+			}
+
+		.update-form {
+			display: none;
+	}
+	</style>
+</head>
+<body>
+	<div id="logo">Admin Dashboard</div>
+	<div id="adminId"></div>
+    <button id="logoutBtn">Logout</button>
+    <button type="submit" id="purchases">Purchases</button>
+    <div id="courses">My Courses</div>
+    <button id="createBtn">Create Course</button>
+    <form class="course-form" id="createForm">
+        <label for="title">Title</label>
+        <input class="title" id="title" type="text" placeholder="Enter Course Title" autofocus required>
+        <br/>
+        <label for="description">Description</label>
+        <input class="description" id="description" type="text" placeholder="Enter Course Description" required>
+        <br/>
+        <label for="imageUrl">Image</label>
+        <input class="imageUrl" id="imageUrl" type="text" placeholder="Enter Course Image" required>
+        <br/>
+        <label for="price">Price</label>
+        <input class="price" id="price" type="text" placeholder="Enter Price" required>
+        <br/>
+        <button class="create-btn" id="createSubmitBtn" type="submit" >Submit</button>
+    </form>
+    <!--<button id="updateBtn">Update Course</button>-->
+    <form class="update-form" id="updateForm">
+        <h4>Submit to update course</h4>
+        <label for="title">Title</label>
+        <input class="title" id="updateTitle" type="text" placeholder="Enter Course Title" autofocus >
+        <br/>
+        <label for="description">Description</label>
+        <input class="description" id="updateDescription" type="text" placeholder="Enter Course Description">
+        <br/>
+        <label for="imageUrl">Image</label>
+        <input class="imageUrl" id="updateImageUrl" type="text" placeholder="Enter Course Image">
+        <br/>
+        <label for="price">Price</label>
+        <input class="price" id="updatePrice" type="text" placeholder="Enter Price">
+        <br/>
+        <button class="create-btn" id="updateBtn" type="submit" >Submit to Update</button>
+    </form>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.12.2/dist/axios.min.js"></script>
+    <script>
+      const button = document.getElementById('purchases')
+      const logout = document.getElementById('logoutBtn')
+      const list = document.getElementById('courses')
+      
+      const createBtn = document.getElementById('createBtn')
+      const createForm = document.getElementById('createForm')
+      const updateForm = document.getElementById('createForm')
+     
+
+      const titleUpdate = document.getElementById('updateTitle')
+      const descriptionUpdate = document.getElementById('updateDescription')
+      const imageUrlUpdate = document.getElementById('updateImageUrl')
+      const priceUpdate = document.getElementById('updatePrice')
+
+      const title = document.getElementById('title');
+      const description = document.getElementById('description');
+      const imageUrl = document.getElementById('imageUrl');
+      const price = document.getElementById('price');
+  
+      let selectedCourseId = null;
+
+
+      createForm.addEventListener('submit', async (event)=> {
+        event.preventDefault();
+        await fetchCreateCourse();
+      });
+
+
+      updateForm.addEventListener('submit', async (event)=> {
+        event.preventDefault();
+
+        const title = document.getElementById('updateTitle')
+        const description = document.getElementById('updateDescription')
+        const imageUrl = document.getElementById('updateImageUrl')
+        const price = document.getElementById('updatePrice')
+
+        // const payload = {
+        //   ...(title.value && { title: title.value }),
+        //   ...(description.value && { description: description.value }),
+        //   ...(imageUrl.value && { imageUrl: imageUrl.value }),
+        //   ...(price.value && { price: Number(price.value) }),
+        //   courseId: selectedCourseId
+        // };
+        
+          const payload = {
+            title: title.value || undefined,
+            description: description.value || undefined,
+            imageUrl: imageUrl.value || undefined,
+            price: price.value ? Number(price.value) : undefined,
+            courseId: selectedCourseId,
+          };
+        console.log(payload)
+
+       try {
+         const response = await fetchUpdateCourse(payload);
+         console.log(response.data);
+         updateForm.style.display = 'none';
+         fetchPurchases()
+       } catch(error){
+         console.error(error);
+       }
+
+      })
+
+
+
+      const fetchPurchases = async ()=> {
+        list.innerHTML= 'My Courses'
+        updateForm.style.display = 'none'
+        const response = await axios.get('/admin/course/bulk', {withCredentials: true})
+        const courses = response.data.courses
+        // console.log(typeof courses)
+        courses.forEach(course=>{
+          const items = document.createElement('div')
+          const item = document.createElement('label')
+          const updateSubmitBtn = document.createElement('button')
+          const deleteBtn = document.createElement('button')
+          const courseId = course._id;
+          updateSubmitBtn.textContent = 'Update'
+          updateSubmitBtn.addEventListener('click', async ()=>{
+            try {
+              selectedCourseId = course._id;
+              updateForm.style.display = 'block'
+              createForm.style.display = 'none'
+              titleUpdate.value = course.title;
+              descriptionUpdate.value = course.description;
+              imageUrlUpdate.value = course.imageUrl;
+              priceUpdate.value = course.price;
+              
+              title.value = course.title;
+              description.value = course.description;
+              imageUrl.value = course.imageUrl;
+              price.value = course.price;
+              
+
+            } catch (error){
+              console.error(error)
+            }
+          })
+          deleteBtn.textContent = 'Delete'
+          deleteBtn.addEventListener('click', async ()=>{
+            try {
+              // const courseId = course._id
+              // console.log(typeof courseId)
+              const responsed = await axios.delete('/admin/course', {data: {courseId: courseId}, withCredentials: true})
+              console.log(responsed.data)
+              fetchPurchases()
+            } catch (error){
+              console.error(error)
+            }
+          })
+          item.textContent = course.title
+          items.append(item, updateSubmitBtn, deleteBtn)
+          list.appendChild(items)
+        })
+      }
+
+      const fetchUpdateCourse = async (payload)=>{
+        return await axios.put('/admin/course', payload, {withCredentials: true})
+      }
+
+
+      const fetchCreateCourse = async ()=>{
+        try {
+          const title = document.getElementById('title')
+          const description = document.getElementById('description')
+          const imageUrl = document.getElementById('imageUrl')
+          const price = document.getElementById('price')
+          const response = await axios.post('/admin/course', {
+            title: title.value,
+            description: description.value,
+            imageUrl: imageUrl.value,
+            price: Number(price.value)
+          }, {withCredentials: true})
+          console.log(response)
+          fetchPurchases()
+          // alert("Courses created successfully")
+        } catch (error){
+          console.error(error)
+        }
+
+      }
+
+
+      const fetchLogout = ()=>{
+        document.cookie = 'token='
+        window.location.href = '/loginAdmin.html'
+      }
+
+      button.addEventListener('click', fetchPurchases);
+      logout.addEventListener('click', fetchLogout)
+      createBtn.addEventListener('click', ()=> {
+        updateForm.style.display = 'none'
+          createForm.style.display =
+            createForm.style.display === 'none' ? 'block' : 'none'
+        })
+      
+    </script>
+</body>
+</html>

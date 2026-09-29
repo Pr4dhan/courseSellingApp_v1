@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Login</title>
+	<style>
+	    .error-msg {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">Dashboard password</div>
+        <div class="subtitle">Enter admin email and password</div>
+        <div class="error-msg" id="errorMsg">Invalid Credential</div>
+        <form class="signin-form" id="signinForm">
+            <label for="email">Enter Admin Email</label>
+            <input class="email" id="email" type="text" placeholder="Enter Admin Email" autofocus required>
+            <label for="password">Enter Admin Password</label>
+            <input class="password" id="password" type="text" placeholder="Enter Admin Password" required>
+            <button class="signin-btn" type="submit" >Signin</button>
+        </form>
+    </div>
+    <script>
+      const signinForm = document.getElementById('signinForm');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password')
+      const errorMsg = document.getElementById('errorMsg')
+
+      errorMsg.style.display = "none"
+
+      signinForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try{
+          const response = await fetch ('/admin/signin', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: emailInput.value, password: passwordInput.value})
+          });
+          if(!response.ok){
+            errorMsg.style.display = 'block';
+            return;
+          }
+          const body = await response.json();
+          localStorage.setItem('token', body.token);
+          window.location.href = '/indexAdmin.html'
+        } catch(error){
+          errorMsg.textContent = 'Server error'
+          errorMsg.style.display = 'block'
+        }
+      })
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Course Selling</title>
+
+</head>
+<body>
+   <div id="logo">User Dashboard</div>
+   <div id="userId"></div>
+   <button id="logoutBtn">Logout</button>
+   <button type="submit" id="purchases">Purchases</button>
+   <div id="courses">My Purchases</div>
+   <div id="courseData">Available Courses</div>
+
+   <script src="https://cdn.jsdelivr.net/npm/axios@1.12.2/dist/axios.min.js"></script>
+   <script>
+      const logout = document.getElementById('logoutBtn');
+      const button = document.getElementById('purchases');
+      const list = document.getElementById('courses');
+      const list2 = document.getElementById('courseData');
+
+      const fetchPurchases = async ()=>{
+        list.innerHTML = "My Purchases";
+        list2.innerHTML = "Available Courses";
+        
+        const response = await axios.get('/user/purchases', {withCredentials: true})
+        const courses = response.data.coursesData
+        courses.forEach(course=>{
+          const item = document.createElement('div')
+          item.textContent = course.title
+          list.appendChild(item)
+        })
+        const responses = await axios.get('/course/preview')
+        const coursesData = responses.data.courses
+       
+        coursesData.forEach(course=>{
+          const cards = document.createElement('div')
+          const items = document.createElement('span')
+          const button = document.createElement('button')
+        
+          items.textContent = course.title;
+          button.textContent = 'Buy'
+          button.addEventListener('click', async ()=>{
+            try {
+              const resposnded = await axios.post('/course/purchase', {courseId: course._id}, {withCredentials: true})
+              console.log(resposnded.data)
+            } catch (error){
+              console.error(error);
+            }
+          })
+          cards.append(items, button)
+          list2.appendChild(cards)
+        })
+      }
+
+      const fetchLogout = ()=>{
+        document.cookie = 'token='
+        window.location.href = '/login.html'
+      }
+      
+      button.addEventListener('click', fetchPurchases);
+      logout.addEventListener('click', fetchLogout)
+   </script>
+</body>
+</html>
